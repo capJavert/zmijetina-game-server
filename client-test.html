@@ -1,0 +1,8 @@
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  var app = require('express')();
+  var http = require('http').Server(app);
+  var io = require('socket.io')(http);
+
+  var socket = io("127.0.0.1:3000");
+</script>
