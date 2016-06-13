@@ -1,7 +1,8 @@
 var http = require('http'),
     fs = require('fs'),
     // NEVER use a Sync function except at start-up!
-    index = fs.readFileSync(__dirname + '/index.html');
+    index = fs.readFileSync(__dirname + '/index.html'),
+	positions = {};
 
 // Send index.html to all requests
 var app = http.createServer(function(req, res) {
@@ -21,15 +22,20 @@ function sendTime() {
 
 io.on('connection', function(socket) {
     console.log("Client connected");
-    socket.emit("hello", { id: socket.id });
+    socket.emit("hello", socket.id);
     //socket.emit("answer");
 
     socket.on("position", function(data) {
-        console.log(data);   
+        positions[socket.id] = JSON.parse(data);  
+		var jsonData = JSON.stringify(positions);
+		console.log(jsonData);
+		
+		socket.emit("positions", jsonData);
     });
 
     socket.on("disconnect", function() {
         console.log("Client disconnected");
+		delete positions[socket.id];
     });
 });
 
