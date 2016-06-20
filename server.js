@@ -3,6 +3,7 @@ var http = require('http'),
     // NEVER use a Sync function except at start-up!
     index = fs.readFileSync(__dirname + '/index.html'),
 	positions = {};
+	food = {};
 
 // Send index.html to all requests
 var app = http.createServer(function(req, res) {
@@ -22,20 +23,37 @@ function sendTime() {
 
 io.on('connection', function(socket) {
     console.log("Client connected");
-    socket.emit("hello", socket.id);
     //socket.emit("answer");
-
+	socket.emit("hello", socket.id);
+	
     socket.on("position", function(data) {
-        positions[socket.id] = JSON.parse(data);  
-		var jsonData = JSON.stringify(positions);
-		console.log(jsonData);
+        var newData = JSON.parse(data);
+		positions[newData.gameId] = {};
+		positions[newData.gameId][socket.id] = newData;
+		var jsonData = JSON.stringify(positions[newData.gameId]);
+		console.log("Position received:", jsonData);
 		
 		socket.emit("positions", jsonData);
     });
+	
+	socket.on("food", function(data) {
+		var newData = JSON.parse(data);
+        food[newData.gameId] = newData;  
+		var jsonData = JSON.stringify(food[newData.gameId]);
+		console.log("Food received:", jsonData);
+		
+		socket.emit("food", jsonData);
+    });
 
+	socket.on("dead", function(data) {
+		var newData = JSON.parse(data);
+		delete positions[newData.gameId][socket.id];
+		
+		console.log("Client player dead");
+	});
+	
     socket.on("disconnect", function() {
         console.log("Client disconnected");
-		delete positions[socket.id];
     });
 });
 
