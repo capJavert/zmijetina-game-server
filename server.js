@@ -39,9 +39,7 @@ io.on('connection', function(socket) {
 	socket.on("food", function(data) {
 		var newData = JSON.parse(data);
         food[newData.gameId] = newData;  
-		var newFood = {};
-		newFood["food"] = food[newData.gameId];
-		var jsonData = JSON.stringify(newFood);
+		var jsonData = JSON.stringify(food[newData.gameId]);
 		console.log("Food received:", jsonData);
 		
 		socket.emit("food", jsonData);
