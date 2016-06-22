@@ -28,21 +28,33 @@ io.on('connection', function(socket) {
 	
     socket.on("position", function(data) {
         var newData = JSON.parse(data);
-		positions[newData.gameId] = {};
+//		positions[newData.gameId] = {};
+
+		if(typeof positions[newData.gameId]=="undefined") {
+			positions[newData.gameId] = {};
+		}
+
 		positions[newData.gameId][socket.id] = newData;
 		var jsonData = JSON.stringify(positions[newData.gameId]);
-		console.log("Position received:", jsonData);
+		console.log("Position received:", jsonData+"\n\n\n====");
+
+var pCount = 0;
+for(var p in positions[newData.gameId]) {
+//        console.log(p.username);
+    }
+
+		//console.log("Players count: ", pCount)		
 		
-		socket.emit("positions", jsonData);
+		io.emit("positions", jsonData);
     });
 	
 	socket.on("food", function(data) {
 		var newData = JSON.parse(data);
         food[newData.gameId] = newData;  
 		var jsonData = JSON.stringify(food[newData.gameId]);
-		console.log("Food received:", jsonData);
+//		console.log("Food received:", jsonData);
 		
-		socket.emit("food", jsonData);
+		io.emit("food", jsonData);
     });
 
 	socket.on("dead", function(data) {
