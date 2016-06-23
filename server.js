@@ -39,7 +39,7 @@ io.on('connection', function(socket) {
 		
 		games[newData[0]]--;
 		console.log("Until start: ", games[newData[0]]);
-		socket.emit("timer", games[newData[0]]);
+		io.emit("timer", games[newData[0]]);
 		
 		if(games[newData[0]]==0) {
 			delete games[newData[0]];
@@ -57,6 +57,8 @@ io.on('connection', function(socket) {
 		positions[newData.gameId][socket.id] = newData;
 		var jsonData = JSON.stringify(positions[newData.gameId]);
 		console.log("Position received:", jsonData+"\n\n\n====");
+		
+		io.emit("positions", jsonData)
 	});
 	
 	socket.on("food", function(data) {
