@@ -4,6 +4,7 @@ var http = require('http'),
     index = fs.readFileSync(__dirname + '/index.html'),
 	positions = {};
 	food = {};
+	games = {};
 
 // Send index.html to all requests
 var app = http.createServer(function(req, res) {
@@ -26,6 +27,25 @@ io.on('connection', function(socket) {
     //socket.emit("answer");
 	socket.emit("hello", socket.id);
 	
+	socket.on("fromOtherSidee", function(data){
+		var newData = data.split(":");
+		 
+		console.log("gid: ", newData[0]); 
+		console.log("pnum: ", newData[1]); 
+		 
+		if(typeof games[newData[0]]=="undefined") {
+			games[newData[0]] = parseInt(newData[1]);
+		}
+		
+		games[newData[0]]--;
+		console.log("Until start: ", games[newData[0]]);
+		socket.emit("timer", games[newData[0]]);
+		
+		if(games[newData[0]]==0) {
+			delete games[newData[0]];
+		}
+	});
+	
     socket.on("position", function(data) {
         var newData = JSON.parse(data);
 //		positions[newData.gameId] = {};
@@ -37,16 +57,7 @@ io.on('connection', function(socket) {
 		positions[newData.gameId][socket.id] = newData;
 		var jsonData = JSON.stringify(positions[newData.gameId]);
 		console.log("Position received:", jsonData+"\n\n\n====");
-
-var pCount = 0;
-for(var p in positions[newData.gameId]) {
-//        console.log(p.username);
-    }
-
-		//console.log("Players count: ", pCount)		
-		
-		io.emit("positions", jsonData);
-    });
+	});
 	
 	socket.on("food", function(data) {
 		var newData = JSON.parse(data);
